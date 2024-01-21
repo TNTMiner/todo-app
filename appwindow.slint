@@ -1,19 +1,18 @@
-import { SpinBox, Button, CheckBox, Slider, LineEdit, ScrollView, ListView, HorizontalBox, VerticalBox, GridBox, StandardButton } from "std-widgets.slint";
+import { SpinBox, Button, CheckBox, Slider, LineEdit, ScrollView, ListView, HorizontalBox, VerticalBox, GridBox, StandardButton , ComboBox} from "std-widgets.slint";
 
 
 export struct TodoItem {
     title: string,
-    checked: bool,
-   // if string.physical-length > 
+    status: int,
 }
 
 component MainWindow inherits Window {
 
     in property <[TodoItem]> todo-model: [
-        {title: "Get Calender integration for how many days an items been pending", checked: false},
-        {title: "Get an icon, and a application title", checked: false},
-        {title: "Add text wrap", checked: false},
-        {title: "Release it", checked: false},
+        {title: "Get Calender integration for how many days an items been pending", status: 1},
+        {title: "Get an icon, and a application title", status: 0},
+        {title: "Add text wrap", status: 2},
+        {title: "Release it", status: 0},
     ];
 
     in property <bool> show-header: false;
@@ -91,17 +90,28 @@ component MainWindow inherits Window {
     }
 
     list-view := ListView {
-        for todo in root.todo-model: HorizontalLayout {
-            CheckBox {
-                toggled => {
-                    todo.checked = self.checked;
-                }
+    for todo in root.todo-model: HorizontalLayout {
+        ComboBox {
+            model: ["Pending", "Doing", "Complete"];
+            
+            enabled: true;
+            current-index: todo.status;
 
-                text: todo.title;
-                checked: todo.checked;
+            selected(int) => {
+                todo.status = self.current-index;
+                root.apply-sorting-and-filtering();
+                
             }
+
+            width: 100px;    
+        }
+        Text {
+            text: todo.title;
+            font-size: 15px;
+            vertical-alignment: center;
         }
     }
+}
     HorizontalBox {
         padding: 0px;
         alignment: end;
